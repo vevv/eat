@@ -13,11 +13,11 @@
 # Installation
 ```sh
 git clone https://github.com/vevv/eat
-cd deew
+cd eat
 pip install .
 ```
 `pip install -e .` can be used instead for an editable instance (see: https://stackoverflow.com/a/35064498)
-* run `deew` with no params to generate an example config in ~/.deew/config.toml.example
+* run `eat` with no params to generate an example config in ~/.eat/config.toml.example
 
 # Usage
 ```
@@ -56,14 +56,14 @@ optional arguments:
 Remixing is handled by the encoder rather than ffmpeg, as AFAIK it doesn't do it very well.
 
 # Examples
-* DD+5.1 1024 kbps: `deew -i audio.flac -f ddp -b 1024`
-* TrueHD + DD5.1 640 kbps "core": `deew -i audio.dts -f thd+ac3`
+* DD+5.1 1024 kbps: `eat -i audio.flac -f ddp -b 1024`
+* TrueHD + DD5.1 640 kbps "core": `eat -i audio.dts -f thd+ac3`
 
 # Notes
-The DD5.1 "core" will use Dolby Surround EX if input is 7.1. Standalone DD5.1 encoding does not enable this option.
-Only 1.0, 2.0, 5.1, 7.1 are supported, other layouts should be converted to those by user.
-7.1 will automatically be downmixed to 5.1 with DEE for DD.
-thd.log/thd.mll files are cleaned after all encoding jobs are finished.
+- The DD5.1 "core" will use Dolby Surround EX if input is 7.1. Standalone DD5.1 encoding does not enable this option.
+- Only 1.0, 2.0, 5.1, 7.1 are supported, other layouts should be converted to those by user.
+- 7.1 will automatically be downmixed to 5.1 with DEE for DD.
+- thd.log/thd.mll files are cleaned after all encoding jobs are finished.
 
 # TODO
 - [ ] Prevent/add warnings for file overwrites
@@ -76,4 +76,4 @@ thd.log/thd.mll files are cleaned after all encoding jobs are finished.
 - [ ] Test with WSL
 
 # Credits
-Thanks to pcroland for his [deew](https://github.com/pcroland/deew) project which was the base for this project.
+Thanks to pcroland for his [deew](https://github.com/pcroland/deew) project which was the base for this.
