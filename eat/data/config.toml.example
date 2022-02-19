@@ -1,0 +1,8 @@
+temp_path = '/tmp/' # use full path (make sure the folder exists)
+
+# specifying binary paths is not necessary if they are in path
+[binaries]
+ffmpeg = 'ffmpeg'
+ffprobe = 'ffprobe'
+dee = 'dee'
+flac = 'flac'
