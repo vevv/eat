@@ -48,6 +48,7 @@ class FFmpegEncoder(BaseEncoder):
         )
 
     def _rich_handler(self, process):
+        """Handles Rich progress bar"""
         if not self._duration or self._duration < 0:
             return self._simple_handler(process)
 
@@ -75,6 +76,7 @@ class FFmpegEncoder(BaseEncoder):
                     self.logger.error(line.rstrip())
 
     def _simple_handler(self, process):
+        """Handles simple (native ffmpeg) progress output"""
         self.logger.info(f'Converting {self._input_file.name} to {self._codec_name}')
         with cast(BytesIO, process.stderr):
             for line in iter(process.stderr.readline, ''):

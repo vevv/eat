@@ -114,6 +114,7 @@ venv.bak/
 old/
 *.wav
 *.ec3
+*.eb3
 *.ac3
 *.thd
 *.toml

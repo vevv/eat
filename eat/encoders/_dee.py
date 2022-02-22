@@ -26,7 +26,7 @@ class DeeEncoder(BaseEncoder):
         self._config_dir = Path(__file__).resolve().parent.parent / 'data' / 'xml'
 
     def _load_xml(self, config_path: Path):
-        """Loads xml into an editable dict"""
+        """Loads config xml into an editable dict"""
         self._config = AttrDict(xmltodict.parse(
             config_path.read_text(),
             dict_constructor=dict
@@ -55,6 +55,7 @@ class DeeEncoder(BaseEncoder):
         file.unlink()
 
     def _rich_handler(self, process):  # type: ignore
+        """Handles Rich progress bar"""
         with Progress() as pb:
             task = pb.add_task(self._get_task_name(), total=100)
 
@@ -72,8 +73,10 @@ class DeeEncoder(BaseEncoder):
                         self.logger.error(line.rstrip().split(': ', 1)[1])
 
     def _get_task_name(self) -> str:
+        """Returns task name for Rich progress bar"""
         return f'Encoding {self._filename} with DEE'
 
     @staticmethod
     def _export_xml(xml_data: dict) -> str:
+        """Exports config dict to a DEE-readable XML file"""
         return xmltodict.unparse(xml_data, pretty=True, indent=' ' * 4)

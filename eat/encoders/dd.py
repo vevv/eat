@@ -21,6 +21,7 @@ class Encoder(DDPEncoder):
 
     @staticmethod
     def _get_default_bitrate(channels: int) -> int:
+        """Returns default bitrate for a given channel configuration"""
         return {
             1: 128,
             2: 224,

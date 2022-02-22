@@ -4,10 +4,13 @@ from shutil import which
 from pathlib import Path
 
 from rich.logging import RichHandler
+from rich.prompt import Confirm
 
 from eat.config import Config
+from eat.encoders._dee import DeeEncoder
 from eat.encoders._ffmpeg import FFmpegEncoder
 from eat.utils.ffprobe import FFprobe
+from eat.utils.processor import ProcessingError
 from eat.utils.tempfile import get_temp_file
 
 
@@ -26,24 +29,64 @@ class Handler:
         self._to_remove = []
 
     def main(self):
+        """Processes given input files"""
         rf64e = self._get_encoder('rf64')
         encoder = self._get_encoder(self.args.encoder)
+
+        if not self.args.input:
+            self.logger.error('No files provided to process')
 
         for file in self.args.input:
             self.logger.info('Processing %s...', file)
 
+            # Set paths
             input_path = file
-            file_info = self.probe(file)['streams'][0]
+            output_path = file.with_suffix(encoder.extension)
+
+            # Check if input/output files exist
+            if not input_path.exists():
+                self.logger.error('%s doesn\'t exist!', input_path)
+                continue
+
+            if output_path.exists() \
+                    and not self.args.allow_overwrite \
+                    and not Confirm.ask(prompt=f'{output_path} exists. Overwrite?'):
+                self.logger.error('%s exists, skipping', output_path)
+                continue
+
+            if input_path == output_path:
+                self.logger.error('Cannot convert %s to %s', input_path, output_path)
+                continue
+
+            # Run ffprobe for file info
+            try:
+                file_info = self.probe(input_path)['streams'][0]
+            except ProcessingError:
+                self.logger.error('ffprobe failed to recognize %s, skipping', input_path)
+                continue
+
             codec = file_info['codec_name']
             bitdepth = int(file_info.get('bits_per_sample') or file_info.get('bits_per_raw_sample', 32))
             # ffmpeg progress output has duration in microseconds, but ffprobe returns seconds
             duration = float(file_info.get('duration', -1)) * 1000000
 
+            # Check for broken files
+            if file_info['channels'] == 0:
+                self.logger.error('Zero channels detected, file likely broken, skipping')
+                continue
+
             # Prevent crashing on 2.0 -> 5.1/7.1 downmix
             if self.args.channels \
                     and file_info['channels'] <= 2 and self.args.channels > 2:
                 self.logger.error('Upmixing from mono/stereo not supported')
-                raise ValueError('Upmixing from mono/stereo not supported')
+                continue
+
+            # Prevent crashing with wrong channel layouts for DEE
+            if isinstance(encoder, DeeEncoder) \
+                    and file_info['channels'] not in (1, 2, 6, 8):
+                self.logger.error('Only supported channel configurations '
+                                  'for DEE are 1.0, 2.0, 5.1, 7.1')
+                continue
 
             # Warn against mono/stereo DD/P
             if (file_info['channels'] <= 2
@@ -60,7 +103,7 @@ class Handler:
                     and file_info.get('profile')[-2:] not in ('MA', ':X', ' X')):
                 self.logger.warning(
                     'Input file %s is lossy, re-encoding is not recommended',
-                    file.name
+                    input_path.name
                 )
 
             # Convert all formats to rf64 before passing them to encoders
@@ -81,12 +124,13 @@ class Handler:
 
             encoder(
                 input_path=input_path,
-                output_path=file.with_suffix(encoder.extension),
+                output_path=output_path,
                 bitdepth=bitdepth,
                 duration=duration,
                 bitrate=self.args.bitrate,
                 channels=self.args.channels or file_info.get('channels'),
                 remix=bool(self.args.channels),
+                surround_ex=self.args.surround_ex,
                 temp_dir=self.config.temp_path
             )
             self._to_remove.extend(encoder._to_remove)
@@ -96,6 +140,7 @@ class Handler:
                 file.unlink()
 
     def _get_encoder(self, encoder):
+        """Returns initialized encoder class for a given encoder name"""
         if encoder == 'thd+ac3':
             encoder = 'thdac3'
 
@@ -105,6 +150,6 @@ class Handler:
         ))
         if not encoder_path:
             self.logger.error('Path for %s not found!', module.Encoder.binary_name)
-            raise ValueError
+            raise SystemExit
 
         return module.Encoder(Path(encoder_path))

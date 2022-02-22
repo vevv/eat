@@ -3,6 +3,8 @@ from eat.utils.processor import Processor
 
 
 class FFprobe:
+    """ffprobe reading utility class"""
+
     def __init__(self, path):
         self._path = path
         self._processor = Processor()

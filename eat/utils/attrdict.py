@@ -1,7 +1,7 @@
 class AttrDict(dict):
     """
-    Attribute dict, shamelessly stolen from StackOverflow,
-    for cleaner code in submodules
+    Attribute-readable dict, for cleaner code in submodules
+    source: https://stackoverflow.com/a/48806603
     """
 
     def __init__(self, mapping=None):

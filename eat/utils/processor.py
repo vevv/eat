@@ -13,6 +13,7 @@ class Processor:
         self.logger = logging.getLogger(__name__)
 
     def call_process(self, params, success_codes=(0,)):
+        """Calls process without surpressing the output"""
         sys.tracebacklimit = 0  # set traceback limit for neater errors
         self.logger.debug('Starting %s with params:', params[0])
         self.logger.debug(params)
@@ -29,6 +30,10 @@ class Processor:
         del sys.tracebacklimit
 
     def call_process_output(self, params, output_handler=None, success_codes=(0,)):
+        """
+        Calls process surpressing the output,
+        optionally piping it to a provided handler function
+        """
         sys.tracebacklimit = 0  # set traceback limit for neater errors
         self.logger.debug('Starting %s with params:', params[0])
         self.logger.debug(params)
