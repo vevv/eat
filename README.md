@@ -22,8 +22,8 @@ pip install .
 
 # Usage
 ```
-usage: eat [-h] [-v] [-i [INPUT ...]] [-f {dd,ddp,thd,thd+ac3,opus,flac,aac}] [-b BITRATE] [-m {1,2,6,8}] [--ex] [-y]
-           [-d]
+usage: eat [-h] [-v] [-i [INPUT ...]] [-f {dd,ddp,thd,thd+ac3,opus,flac,aac}] [-b BITRATE]
+           [-m {1,2,6,8}] [--ex] [-y] [-d]
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -56,6 +56,8 @@ See https://github.com/nu774/qaac/wiki/Encoder-configuration#tvbr-quality-steps 
 
 Like qaac, eat will accept any value, but it'll internally be clamped to one of the following.
 | 0 | 9 | 18 | 27 | 36 | 45 | 54 | 63 | 73 | 82 | 91 | 100 | 109 | 118 | 127 |
+| - | - | -- | -- | -- | -- | -- | -- | -- | -- | -- | --- | --- | --- | --- |
+
 
 Default value is 127, which is the maximum quality, depending on the source it can result in different bitrates,
 I've seen it go from 192 kbps and under on some lower quality 2.0 sources to ~490 kbps on 7.1.
