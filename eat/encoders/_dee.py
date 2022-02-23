@@ -1,15 +1,13 @@
 import os
 import re
 import subprocess
-from io import BytesIO
-from typing import Optional, cast
+from typing import Optional, cast, TextIO
 from pathlib import Path
 
 import xmltodict
 from rich.progress import Progress
 
 from eat.encoders._base import BaseEncoder
-from eat.utils.attrdict import AttrDict
 from eat.utils.tempfile import get_temp_file
 
 
@@ -17,26 +15,22 @@ class DeeEncoder(BaseEncoder):
     """Dolby Encoding Engine encoder base class"""
     extension: str
     binary_name: str = 'dee'
-    _config: Optional[dict] = None
-    _temp_dir: Optional[Path] = None
-    _filename: Optional[str] = None  # display only
+    _config: dict
+    _temp_dir: Path
+    _filename: str  # display only
 
-    def __init__(self, path: Path):
+    def __init__(self, path: Path) -> None:
         super().__init__(path)
         self._config_dir = Path(__file__).resolve().parent.parent / 'data' / 'xml'
 
-    def _load_xml(self, config_path: Path):
+    def _load_xml(self, config_path: Path) -> None:
         """Loads config xml into an editable dict"""
-        self._config = AttrDict(xmltodict.parse(
+        self._config = xmltodict.parse(
             config_path.read_text(),
             dict_constructor=dict
-        ))
+        )
 
-    def _configure(self, *args, **kwargs):
-        """Configures encoding params"""
-        raise NotImplementedError
-
-    def _encode(self):
+    def _encode(self) -> None:
         """Starts an encoding process"""
         file = get_temp_file(suffix='.xml', directory=self._temp_dir)
         with file.open(mode='w', encoding='utf-8') as f:
@@ -54,23 +48,24 @@ class DeeEncoder(BaseEncoder):
         )
         file.unlink()
 
-    def _rich_handler(self, process):  # type: ignore
+    def _rich_handler(self, process: subprocess.Popen) -> None:
         """Handles Rich progress bar"""
         with Progress() as pb:
             task = pb.add_task(self._get_task_name(), total=100)
 
-            with cast(BytesIO, process.stdout):
-                for _ in iter(process.stdout.readline, ''):
-                    line = process.stdout.readline()
+            with cast(TextIO, process.stdout) as stdout:
+                for _ in iter(stdout.readline, ''):
+                    line = stdout.readline()
+                    self.logger.debug(line.split(']', 1)[-1].strip())
+                    if 'error' in line.lower():
+                        self.logger.error(line.rstrip().split(': ', 1)[1])
+
                     progress = re.search(
                         r'Overall progress: ([0-9]+\.[0-9])',
                         line
                     )
                     if progress:
                         pb.update(task_id=task, completed=float(progress[1]))
-
-                    if 'error' in line.lower():
-                        self.logger.error(line.rstrip().split(': ', 1)[1])
 
     def _get_task_name(self) -> str:
         """Returns task name for Rich progress bar"""
@@ -79,4 +74,4 @@ class DeeEncoder(BaseEncoder):
     @staticmethod
     def _export_xml(xml_data: dict) -> str:
         """Exports config dict to a DEE-readable XML file"""
-        return xmltodict.unparse(xml_data, pretty=True, indent=' ' * 4)
+        return cast(str, xmltodict.unparse(xml_data, pretty=True, indent=' ' * 4))

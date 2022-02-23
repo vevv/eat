@@ -1,4 +1,5 @@
 import argparse
+import sys
 from multiprocessing import cpu_count
 from pathlib import Path
 from typing import IO, Optional
@@ -7,7 +8,7 @@ import rich
 
 from eat.handler import Handler
 
-__version__ = 'eat 0.2'
+__version__ = '0.2'
 
 
 class RichParser(argparse.ArgumentParser):
@@ -15,7 +16,7 @@ class RichParser(argparse.ArgumentParser):
         rich.print(message, file=file)
 
 
-def main():
+def main() -> None:
     parser = RichParser()
     parser.add_argument(
         '-v', '--version',
@@ -37,14 +38,14 @@ def main():
         type=str.lower,
         default='ddp',
         dest='encoder',
-        choices=('dd', 'ddp', 'thd', 'thd+ac3', 'opus', 'flac'),
+        choices=('dd', 'ddp', 'thd', 'thd+ac3', 'opus', 'flac', 'aac'),
         help='output codec'
     )
 
     parser.add_argument(
-        '-b', '--bitrate',
+        '-b', '-q', '--bitrate',
         type=int,
-        help='output bitrate for lossy codecs'
+        help='output bitrate (quality value for aac) for lossy codecs'
     )
 
     parser.add_argument(
@@ -70,7 +71,16 @@ def main():
         help='allow file overwrite'
     )
 
+    parser.add_argument(
+        '-d', '--debug',
+        default=False,
+        action='store_true',
+        help='Print debug statements'
+    )
+
     args = parser.parse_args()
+    if not args.debug:
+        sys.tracebacklimit = 0  # set traceback limit for neater errors
 
     handler = Handler(args)
     handler.main()

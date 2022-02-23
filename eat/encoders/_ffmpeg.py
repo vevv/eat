@@ -1,6 +1,5 @@
 import subprocess
-from io import BytesIO
-from typing import Optional, cast
+from typing import Any, Optional, cast, TextIO
 from pathlib import Path
 
 from rich.progress import Progress
@@ -15,20 +14,13 @@ class FFmpegEncoder(BaseEncoder):
     supported_inputs: list = ['all']
     _codec_name: str  # display only
     _codec: str  # ffmpeg codec value
-    _extra_params: Optional[list] = []
+    _extra_params: list = []
+    _duration: Optional[int]  # microseconds
 
-    def __init__(self, path: Path):
+    def __init__(self, path: Path) -> None:
         super().__init__(path)
 
-    def __call__(self, *args, **kwargs):
-        self._duration = kwargs.get('duration')  # microseconds
-        super().__call__(*args, **kwargs)
-
-    def _configure(self, *args, **kwargs):
-        """Configures encoding params"""
-        raise NotImplementedError
-
-    def _encode(self):
+    def _encode(self) -> None:
         """Starts an encoding process"""
         self._processor.call_process_output(
             params=[
@@ -41,13 +33,13 @@ class FFmpegEncoder(BaseEncoder):
                 '-i', self._input_file,
                 '-c:a', self._codec,
                 *self._extra_params,
-                '-b:a', '%sk' % self._bitrate,
+                '-b:a', f'{self._bitrate}k',
                 self._output_file
             ],
             output_handler=self._rich_handler
         )
 
-    def _rich_handler(self, process):
+    def _rich_handler(self, process: subprocess.Popen) -> None:
         """Handles Rich progress bar"""
         if not self._duration or self._duration < 0:
             return self._simple_handler(process)
@@ -58,9 +50,9 @@ class FFmpegEncoder(BaseEncoder):
                 total=self._duration
             )
 
-            with cast(BytesIO, process.stdout):
-                for _ in iter(process.stdout.readline, ''):
-                    line = process.stdout.readline()
+            with cast(TextIO, process.stdout) as stdout:
+                for _ in iter(stdout.readline, ''):
+                    line = stdout.readline()
                     if '=' not in line:
                         continue
                     key, val = line.split('=')
@@ -70,16 +62,17 @@ class FFmpegEncoder(BaseEncoder):
             # Manually update to 100% in case last progress update was outdated
             pb.update(task_id=task, completed=self._duration)
 
-        with cast(BytesIO, process.stderr):
-            for line in iter(process.stderr.readline, ''):
+        with cast(TextIO, process.stderr) as stderr:
+            for line in iter(stderr.readline, ''):
+                self.logger.debug(line.strip())
                 if 'error' in line.lower():
                     self.logger.error(line.rstrip())
 
-    def _simple_handler(self, process):
+    def _simple_handler(self, process: subprocess.Popen) -> None:
         """Handles simple (native ffmpeg) progress output"""
         self.logger.info(f'Converting {self._input_file.name} to {self._codec_name}')
-        with cast(BytesIO, process.stderr):
-            for line in iter(process.stderr.readline, ''):
+        with cast(TextIO, process.stderr) as stderr:
+            for line in iter(stderr.readline, ''):
                 if 'error' in line.lower():
                     self.logger.error(line.rstrip())
                 else:

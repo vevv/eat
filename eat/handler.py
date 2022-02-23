@@ -1,12 +1,15 @@
+import argparse
 import importlib
 import logging
-from shutil import which
 from pathlib import Path
+from shutil import which
+from typing import List, Optional
 
 from rich.logging import RichHandler
 from rich.prompt import Confirm
 
 from eat.config import Config
+from eat.encoders._base import BaseEncoder
 from eat.encoders._dee import DeeEncoder
 from eat.encoders._ffmpeg import FFmpegEncoder
 from eat.utils.ffprobe import FFprobe
@@ -15,20 +18,20 @@ from eat.utils.tempfile import get_temp_file
 
 
 class Handler:
-    def __init__(self, args):
+    def __init__(self, args: argparse.Namespace) -> None:
         self.args = args
         logging.basicConfig(
             format='%(message)s',
             datefmt='',
-            level=logging.INFO,
+            level=logging.DEBUG if args.debug else logging.INFO,
             handlers=[RichHandler()]
         )
         self.logger = logging.getLogger(__name__)
-        self.config = Config().load()
-        self.probe = FFprobe(self.config.binaries.ffprobe)
-        self._to_remove = []
+        self.config: dict = Config().load()
+        self.probe: FFprobe = FFprobe(self.config['binaries']['ffprobe'])
+        self._to_remove: List[Path] = []
 
-    def main(self):
+    def main(self) -> None:
         """Processes given input files"""
         rf64e = self._get_encoder('rf64')
         encoder = self._get_encoder(self.args.encoder)
@@ -111,7 +114,7 @@ class Handler:
                     and not isinstance(encoder, FFmpegEncoder):
                 input_path = get_temp_file(
                     suffix=rf64e.extension,
-                    directory=self.config.temp_path
+                    directory=self.config['temp_path']
                 )
                 self._to_remove.append(input_path)
 
@@ -131,7 +134,7 @@ class Handler:
                 channels=self.args.channels or file_info.get('channels'),
                 remix=bool(self.args.channels),
                 surround_ex=self.args.surround_ex,
-                temp_dir=self.config.temp_path
+                temp_dir=self.config['temp_path']
             )
             self._to_remove.extend(encoder._to_remove)
 
@@ -139,17 +142,17 @@ class Handler:
             if file.exists():
                 file.unlink()
 
-    def _get_encoder(self, encoder):
+    def _get_encoder(self, encoder: str) -> BaseEncoder:
         """Returns initialized encoder class for a given encoder name"""
         if encoder == 'thd+ac3':
             encoder = 'thdac3'
 
         module = importlib.import_module('eat.encoders.%s' % encoder)
-        encoder_path = which(self.config.binaries.get(
+        encoder_path = which(self.config['binaries'].get(
             module.Encoder.binary_name, module.Encoder.binary_name
         ))
         if not encoder_path:
             self.logger.error('Path for %s not found!', module.Encoder.binary_name)
             raise SystemExit
 
-        return module.Encoder(Path(encoder_path))
+        return module.Encoder(Path(encoder_path))  # type: ignore[no-any-return]

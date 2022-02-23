@@ -7,6 +7,7 @@
 | AC-3 (DD)    | Dolby Encoding Engine |
 | E-AC-3 (DD+) | Dolby Encoding Engine |
 | TrueHD       | Dolby Encoding Engine |
+| AAC          | qaac                  |
 | FLAC         | sox                   |
 | Opus         | ffmpeg /w libopus     |
 
@@ -37,12 +38,23 @@ optional arguments:
 ```
 
 # Default bitrates
-| Channels | AC-3 (DD) | E-AC-3 (DD+) | Opus     |
-|----------|-----------|--------------|----------|
-| 1        | 128 kbps  | 128 kbps     | 96 kbps  |
-| 2        | 224 kbps  | 224 kbps     | 160 kbps |
-| 6        | 640       | 1024 kbps    | 384 kbps |
-| 8        | N/A       | 1536 kbps    | 512 kbps |
+| Channels | AC-3 (DD) | E-AC-3 (DD+) | Opus     | AAC   |
+|----------|-----------|--------------|----------|-------|
+| 1        | 128 kbps  | 128 kbps     | 96 kbps  | -V127 |
+| 2        | 224 kbps  | 224 kbps     | 160 kbps | -V127 |
+| 6        | 640       | 1024 kbps    | 384 kbps | -V127 |
+| 8        | N/A       | 1536 kbps    | 512 kbps | -V127 |
+
+### AAC
+AAC is configured to use TVBR mode rather than ABR/CBR. This means the output param is a value between 0 and 127 rather than a bitrate target.
+See https://github.com/nu774/qaac/wiki/Encoder-configuration#tvbr-quality-steps for more details.
+
+Like qaac, eat will accept any value, but it'll internally be clamped to one of the following.
+| 0 | 9 | 18 | 27 | 36 | 45 | 54 | 63 | 73 | 82 | 91 | 100 | 109 | 118 | 127 |
+
+Default value is 127, which is the maximum quality, depending on the source it can result in different bitrates,
+I've seen it go from 192 kbps and under on some lower quality 2.0 sources to ~490 kbps on 7.1.
+I'd recommend trying 127 first, and if bitrate is too high, going from 127 to 91 and then moving up.
 
 # Remixing support
 | Channels   | AC-3 (DD) | E-AC-3 (DD+) | TrueHD | Opus | FLAC |
@@ -67,7 +79,7 @@ Remixing is handled by the encoder rather than ffmpeg, as AFAIK it doesn't do it
 
 # TODO
 - [x] Prevent/add warnings for file overwrites
-- [ ] Add support for qaac
+- [x] Add support for qaac
 - [ ] Add warnings for incompatible sample rate
 - [x] Add warnings and/or support for odd channel layouts
 - [ ] Add bit depth conversion for FLAC

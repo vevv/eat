@@ -110,8 +110,7 @@ venv.bak/
 # xmltodict typehints for mypy
 *.pyi
 
-# deew
-old/
+# audio files
 *.wav
 *.ec3
 *.eb3
@@ -120,4 +119,5 @@ old/
 *.toml
 *.flac
 *.dts
-
+*.opus
+*.m4a

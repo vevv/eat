@@ -11,6 +11,9 @@ setuptools.setup(
     author_email=None,
     license=None,
     packages=setuptools.find_packages(),
+    package_data={
+        "eat": ["py.typed", "data/*"]
+    },
     entry_points={
         'console_scripts': ['eat=eat.__main__:main'],
     },
@@ -26,6 +29,7 @@ setuptools.setup(
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: 3.9',
+        'Programming Language :: Python :: 3.10',
         'Topic :: Utilities'
     ]
 )

@@ -1,3 +1,6 @@
+from pathlib import Path
+from typing import Any, Optional
+
 from eat.encoders._ffmpeg import FFmpegEncoder
 
 
@@ -6,10 +9,18 @@ class Encoder(FFmpegEncoder):
     _codec = 'libopus'
     _codec_name = 'Opus'
 
-    def _configure(self, *args, **kwargs):
-        self._input_file = kwargs['input_path']
-        self._output_file = kwargs['output_path']
-        self._bitrate = kwargs['bitrate'] or self._get_default_bitrate(kwargs['channels'])
+    def _configure(self,
+        input_path: Path,
+        output_path: Path,
+        channels: int,
+        bitrate: int,
+        duration: Optional[int],
+        **_: Any
+    ) -> None:
+        self._input_file = input_path
+        self._output_file = output_path
+        self._bitrate = str(bitrate or self._get_default_bitrate(channels))
+        self._duration = duration
 
     @staticmethod
     def _clamp_bitrate(bitrate: int) -> int:

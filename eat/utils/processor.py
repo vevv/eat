@@ -1,7 +1,7 @@
 import logging
-import re
 import subprocess
-import sys
+from pathlib import Path
+from typing import Callable, cast, List, Optional, Tuple, Union
 
 
 class ProcessingError(RuntimeError):
@@ -9,14 +9,18 @@ class ProcessingError(RuntimeError):
 
 
 class Processor:
-    def __init__(self):
+    """Utility wrapper around subprocess"""
+
+    def __init__(self) -> None:
         self.logger = logging.getLogger(__name__)
 
-    def call_process(self, params, success_codes=(0,)):
+    def call_process(self,
+        params: List[Union[str, Path]],
+        success_codes: Tuple[int] = (0,)
+    ) -> None:
         """Calls process without surpressing the output"""
-        sys.tracebacklimit = 0  # set traceback limit for neater errors
         self.logger.debug('Starting %s with params:', params[0])
-        self.logger.debug(params)
+        self.logger.debug([*map(str, params)])
 
         process = subprocess.Popen(params)
         ret_code = process.wait()
@@ -27,16 +31,17 @@ class Processor:
                 ret_code
             ))
 
-        del sys.tracebacklimit
-
-    def call_process_output(self, params, output_handler=None, success_codes=(0,)):
+    def call_process_output(self,
+        params: List[Union[str, Path]],
+        output_handler: Optional[Callable[[subprocess.Popen], None]] = None,
+        success_codes: Tuple[int] = (0,)
+    ) -> None:
         """
         Calls process surpressing the output,
         optionally piping it to a provided handler function
         """
-        sys.tracebacklimit = 0  # set traceback limit for neater errors
         self.logger.debug('Starting %s with params:', params[0])
-        self.logger.debug(params)
+        self.logger.debug([*map(str, params)])
 
         process = subprocess.Popen(
             params,
@@ -56,5 +61,3 @@ class Processor:
                 params[0],
                 ret_code
             ))
-
-        del sys.tracebacklimit

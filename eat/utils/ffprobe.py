@@ -1,19 +1,23 @@
 import json
+import subprocess
+from pathlib import Path
+from typing import cast, Optional, TextIO
+
 from eat.utils.processor import Processor
 
 
 class FFprobe:
     """ffprobe reading utility class"""
 
-    def __init__(self, path):
-        self._path = path
-        self._processor = Processor()
-        self._log = None
+    def __init__(self, path: Path):
+        self._path: Path = path
+        self._processor: Processor = Processor()
+        self._log: Optional[dict] = None
 
-    def __call__(self, file):
+    def __call__(self, file: Path) -> dict:
         self._processor.call_process_output(
             params=[
-                'ffprobe',
+                self._path,
                 '-v', 'quiet',
                 '-select_streams', 'a:0',
                 '-print_format', 'json',
@@ -23,8 +27,9 @@ class FFprobe:
             ],
             output_handler=self._reader
         )
-        return self._log
+        return cast(dict, self._log)
 
-    def _reader(self, process):
+    def _reader(self, process: subprocess.Popen) -> None:
         process.wait()
-        self._log = json.loads(process.stdout.read())
+        with cast(TextIO, process.stdout) as stdout:
+            self._log = json.loads(stdout.read())

@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import Any, Optional
 
 from eat.encoders._dee import DeeEncoder
 
@@ -8,51 +9,59 @@ class Encoder(DeeEncoder):
     extension: str = '.ec3'
     extension_bd: str = '.eb3'
 
-    def _configure(self, *args, **kwargs):
+    def _configure(self, *,
+        input_path: Path,
+        output_path: Path,
+        bitrate: Optional[int],
+        channels: int,
+        temp_dir: Path,
+        remix: bool = False,
+        surround_ex: bool = False,
+        **_: Any
+    ) -> None:
         self._load_xml(self._config_dir / 'ddp.xml')
 
-        config = self._config.job_config
-        self._temp_dir = kwargs.get('temp_dir')
+        config = self._config['job_config']
+        self._temp_dir = temp_dir
 
         # Configure encoder
-        bitrate = self._clamp_bitrate(
-            kwargs['bitrate'] or self._get_default_bitrate(kwargs['channels'])
-        )
-        mix = self._get_dmix(kwargs['channels'])
-        if kwargs.get('remix', False):
+        bitrate = self._clamp_bitrate(bitrate or self._get_default_bitrate(channels))
+        mix = self._get_mix(channels)
+        if remix:
             self.logger.warning('Remixing audio to %s', mix)
 
         # Upmix to 7.1 requires different encoder mode and extension
         if mix == '7.1':
-            config.filter.audio.pcm_to_ddp.encoder_mode = 'ddp71'
+            config['filter']['audio']['pcm_to_ddp']['encoder_mode'] = 'ddp71'
             mix = 'off'
         else:
-            config.filter.audio.pcm_to_ddp.encoder_mode = 'ddp'
+            config['filter']['audio']['pcm_to_ddp']['encoder_mode'] = 'ddp'
 
         # Bitrates above 1024k are only supported with Blu-ray profile
         if bitrate > 1024:
-            config.filter.audio.pcm_to_ddp.encoder_mode = 'bluray'
-            kwargs['output_path'] = kwargs['output_path'].with_suffix(self.extension_bd)
+            config['filter']['audio']['pcm_to_ddp']['encoder_mode'] = 'bluray'
+            output_path = output_path.with_suffix(self.extension_bd)
 
         # Set bitrate/channel configuration
-        config.filter.audio.pcm_to_ddp.data_rate = bitrate
-        config.filter.audio.pcm_to_ddp.downmix_config = mix
+        config['filter']['audio']['pcm_to_ddp']['data_rate'] = bitrate
+        config['filter']['audio']['pcm_to_ddp']['downmix_config'] = mix
 
         # Enable Dolby Surround EX
-        if kwargs.get('surround_ex', False):
-            config.filter.audio.pcm_to_ddp.dolby_surround_ex_mode = 'yes'
+        if surround_ex:
+            config['filter']['audio']['pcm_to_ddp']['dolby_surround_ex_mode'] = 'yes'
 
         # Configure input paths
-        config.input.audio.wav.file_name = '"%s"' % kwargs['input_path'].name
-        config.input.audio.wav.storage.local.path = '"%s"' % self._temp_dir
-        # Configure output paths
-        config.output.ec3.file_name = '"%s"' % kwargs['output_path'].name
-        config.output.ec3.storage.local.path = '"%s"' % Path.cwd()
-        # Configure temp file location
-        config.misc.temp_dir.path = '"%s"' % self._temp_dir
 
-        self._config.job_config = config
-        self._filename = kwargs['output_path'].name
+        config['input']['audio']['wav']['file_name'] = '"%s"' % input_path.name
+        config['input']['audio']['wav']['storage']['local']['path'] = '"%s"' % temp_dir
+        # Configure output paths
+        config['output']['ec3']['file_name'] = '"%s"' % input_path.name
+        config['output']['ec3']['storage']['local']['path'] = '"%s"' % Path.cwd()
+        # Configure temp file location
+        config['misc']['temp_dir']['path'] = '"%s"' % temp_dir
+
+        self._config['job_config'] = config
+        self._filename = output_path.name
 
     @staticmethod
     def _clamp_bitrate(bitrate: int) -> int:
