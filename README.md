@@ -22,19 +22,24 @@ pip install .
 
 # Usage
 ```
-usage: eat [-h] [-v] [-i [INPUT ...]] [-f {dd,ddp,thd,thd+ac3,opus,flac}] [-b BITRATE][-m {1,2,6,8}] [-t THREADS]
+usage: eat [-h] [-v] [-i [INPUT ...]] [-f {dd,ddp,thd,thd+ac3,opus,flac,aac}] [-b BITRATE] [-m {1,2,6,8}] [--ex] [-y]
+           [-d]
 
 optional arguments:
   -h, --help            show this help message and exit
   -v, --version         shows version
   -i [INPUT ...], --input [INPUT ...]
                         audio file(s)
-  -f {dd,ddp,thd,thd+ac3,opus,flac}, --format {dd,ddp,thd,thd+ac3,opus,flac}
+  -f {dd,ddp,thd,thd+ac3,opus,flac,aac}, --format {dd,ddp,thd,thd+ac3,opus,flac,aac}
                         output codec
-  -b BITRATE, --bitrate BITRATE
-                        output bitrate for lossy codecs
+  -b BITRATE, -q BITRATE, --bitrate BITRATE
+                        output bitrate (quality value for aac) for lossy codecs
   -m {1,2,6,8}, --mix {1,2,6,8}
                         specify down/upmix, support varies by codec (default: none)
+  --ex                  use Dolby Surround EX
+  -y, --allow-overwrite
+                        allow file overwrite
+  -d, --debug           Print debug statements
 ```
 
 # Default bitrates

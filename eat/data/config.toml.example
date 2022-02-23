@@ -5,4 +5,5 @@ temp_path = '/tmp/' # use full path (make sure the folder exists)
 ffmpeg = 'ffmpeg'
 ffprobe = 'ffprobe'
 dee = 'dee'
-flac = 'flac'
+sox = 'sox'
+qaac = 'qaac'
