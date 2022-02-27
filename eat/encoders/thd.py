@@ -8,7 +8,9 @@ class Encoder(DeeEncoder):
     """Dolby TrueHD encoder class"""
     extension: str = '.thd'
 
-    def _configure(self, *,
+    def _configure(
+        self,
+        *,
         input_path: Path,
         output_path: Path,
         temp_dir: Path,

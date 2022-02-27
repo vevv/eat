@@ -28,7 +28,9 @@ class BaseEncoder:
         self._encode()
 
     # Each encoder takes different params, BaseEncoder lists all possible ones
-    def _configure(self,
+    def _configure(
+        self,
+        *,
         input_path: Path,
         output_path: Path,
         bitdepth: int,
@@ -41,7 +43,6 @@ class BaseEncoder:
     ) -> None:
         """Configures encoding params"""
         raise NotImplementedError
-
 
     def _encode(self) -> None:
         """Starts an encoding process"""

@@ -10,7 +10,9 @@ class Encoder(FFmpegEncoder):
     _extra_params = ['-rf64', 'always', '-fflags', '+bitexact']
     _bitrate = '0'  # bitrate irrelevant for a lossless codec
 
-    def _configure(self, *,
+    def _configure(
+        self,
+        *,
         input_path: Path,
         output_path: Path,
         duration: Optional[int],

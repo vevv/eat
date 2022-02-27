@@ -13,7 +13,9 @@ class Encoder(DeeEncoder):
     """Dolby TrueHD with "core" encoder class"""
     extension: str = '.thd+ac3'
 
-    def _configure(self, *,
+    def _configure(
+        self,
+        *,
         input_path: Path,
         output_path: Path,
         channels: int,
@@ -34,8 +36,7 @@ class Encoder(DeeEncoder):
             bitrate=640,
             channels=channels,
             remix=remix,
-            temp_dir=temp_dir,
-            surround_ex=channels == 8
+            temp_dir=temp_dir
         )
 
     def _encode(self) -> None:

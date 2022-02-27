@@ -79,7 +79,6 @@ Remixing is handled by the encoder rather than ffmpeg, as AFAIK it doesn't do it
 * TrueHD + DD5.1 640 kbps "core": `eat -i audio.dts -f thd+ac3`
 
 # Notes
-- The DD5.1 "core" will always use Dolby Surround EX if input is 7.1. Standalone DD5.1 encoding does not enable this option by default.
 - Only 1.0, 2.0, 5.1, 7.1 are supported, other layouts should be converted to those by user.
 - 7.1 will automatically be downmixed to 5.1 with DEE for DD.
 - thd.log/thd.mll files are cleaned after all encoding jobs are finished.

@@ -9,8 +9,6 @@ class Encoder(DDPEncoder):
         super()._configure(*args, **kwargs)
         config = self._config['job_config']
         config['filter']['audio']['pcm_to_ddp']['encoder_mode'] = 'dd'
-        if kwargs['surround_ex']:
-            config['filter']['audio']['pcm_to_ddp']['dolby_surround_ex_mode'] = 'yes'
 
         if kwargs['channels'] > 6:
             config['filter']['audio']['pcm_to_ddp']['downmix_config'] = '5.1'

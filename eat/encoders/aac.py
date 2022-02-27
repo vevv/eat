@@ -17,7 +17,9 @@ class Encoder(BaseEncoder):
     def __init__(self, path: Path) -> None:
         super().__init__(path)
 
-    def _configure(self, *,
+    def _configure(
+        self,
+        *,
         input_path: Path,
         output_path: Path,
         bitrate: Optional[int] = None,

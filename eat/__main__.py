@@ -8,7 +8,7 @@ import rich
 
 from eat.handler import Handler
 
-__version__ = '0.2'
+__version__ = '0.3.1'
 
 
 class RichParser(argparse.ArgumentParser):
@@ -54,14 +54,6 @@ def main() -> None:
         choices=(1, 2, 6, 8),
         dest='channels',
         help='specify down/upmix, support varies by codec (default: none)'
-    )
-
-    parser.add_argument(
-        '--ex',
-        default=False,
-        action='store_true',
-        dest='surround_ex',
-        help='use Dolby Surround EX'
     )
 
     parser.add_argument(

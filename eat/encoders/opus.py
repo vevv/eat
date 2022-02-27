@@ -9,7 +9,9 @@ class Encoder(FFmpegEncoder):
     _codec = 'libopus'
     _codec_name = 'Opus'
 
-    def _configure(self,
+    def _configure(
+        self,
+        *,
         input_path: Path,
         output_path: Path,
         channels: int,

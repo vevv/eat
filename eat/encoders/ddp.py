@@ -9,14 +9,15 @@ class Encoder(DeeEncoder):
     extension: str = '.ec3'
     extension_bd: str = '.eb3'
 
-    def _configure(self, *,
+    def _configure(
+        self,
+        *,
         input_path: Path,
         output_path: Path,
         bitrate: Optional[int],
         channels: int,
         temp_dir: Path,
         remix: bool = False,
-        surround_ex: bool = False,
         **_: Any
     ) -> None:
         self._load_xml(self._config_dir / 'ddp.xml')
@@ -46,16 +47,11 @@ class Encoder(DeeEncoder):
         config['filter']['audio']['pcm_to_ddp']['data_rate'] = bitrate
         config['filter']['audio']['pcm_to_ddp']['downmix_config'] = mix
 
-        # Enable Dolby Surround EX
-        if surround_ex:
-            config['filter']['audio']['pcm_to_ddp']['dolby_surround_ex_mode'] = 'yes'
-
         # Configure input paths
-
         config['input']['audio']['wav']['file_name'] = '"%s"' % input_path.name
         config['input']['audio']['wav']['storage']['local']['path'] = '"%s"' % temp_dir
         # Configure output paths
-        config['output']['ec3']['file_name'] = '"%s"' % input_path.name
+        config['output']['ec3']['file_name'] = '"%s"' % output_path.name
         config['output']['ec3']['storage']['local']['path'] = '"%s"' % Path.cwd()
         # Configure temp file location
         config['misc']['temp_dir']['path'] = '"%s"' % temp_dir

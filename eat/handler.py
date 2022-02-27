@@ -133,7 +133,6 @@ class Handler:
                 bitrate=self.args.bitrate,
                 channels=self.args.channels or file_info.get('channels'),
                 remix=bool(self.args.channels),
-                surround_ex=self.args.surround_ex,
                 temp_dir=self.config['temp_path']
             )
             self._to_remove.extend(encoder._to_remove)
@@ -148,9 +147,9 @@ class Handler:
             encoder = 'thdac3'
 
         module = importlib.import_module('eat.encoders.%s' % encoder)
-        encoder_path = which(self.config['binaries'].get(
-            module.Encoder.binary_name, module.Encoder.binary_name
-        ))
+        encoder_path = self.config['binaries'].get(
+            module.Encoder.binary_name, which(module.Encoder.binary_name)
+        )
         if not encoder_path:
             self.logger.error('Path for %s not found!', module.Encoder.binary_name)
             raise SystemExit
