@@ -23,9 +23,12 @@ pip install .
 * run `eat` with no params to generate an example config in ~/.eat/config.toml.example
 
 # Configuration
-Binary paths in config only need to be specified if binary is not in PATH.
-To use with Wine, please ensure `wine-binfmt` is installed, and you're launching eat with the Wine prefix.
-WSL is currently untested, but I don't anticipate any issues with it.
+Binary paths in config should only need to be specified if binary is not in PATH,
+but they might be necessary if you're using Wine or WSL.
+
+To use with Wine (for DEE/qaac), please ensure `wine-binfmt` is installed, and you're launching eat with the correct Wine prefix.
+
+WSL is untested, but I don't anticipate any issues.
 
 # Usage
 ```
