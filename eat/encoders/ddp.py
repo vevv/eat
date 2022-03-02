@@ -8,6 +8,7 @@ class Encoder(DeeEncoder):
     """Dolby Digital Plus (E-AC-3) encoder class"""
     extension: str = '.ec3'
     extension_bd: str = '.eb3'
+    supported_sample_rates = [48000]
 
     def _configure(
         self,
@@ -49,10 +50,10 @@ class Encoder(DeeEncoder):
 
         # Configure input paths
         config['input']['audio']['wav']['file_name'] = '"%s"' % input_path.name
-        config['input']['audio']['wav']['storage']['local']['path'] = '"%s"' % temp_dir
+        config['input']['audio']['wav']['storage']['local']['path'] = '"%s"' % input_path.resolve().parent
         # Configure output paths
         config['output']['ec3']['file_name'] = '"%s"' % output_path.name
-        config['output']['ec3']['storage']['local']['path'] = '"%s"' % Path.cwd()
+        config['output']['ec3']['storage']['local']['path'] = '"%s"' % output_path.resolve().parent
         # Configure temp file location
         config['misc']['temp_dir']['path'] = '"%s"' % temp_dir
 

@@ -1,7 +1,7 @@
 import logging
 import subprocess
 from pathlib import Path
-from typing import Callable, cast, List, Optional, Tuple, Union
+from typing import Callable, List, Optional, Tuple, Union, cast
 
 
 class ProcessingError(RuntimeError):
@@ -14,24 +14,26 @@ class Processor:
     def __init__(self) -> None:
         self.logger = logging.getLogger(__name__)
 
-    def call_process(self,
+    def call_process(
+        self,
         params: List[Union[str, Path]],
         success_codes: Tuple[int] = (0,)
     ) -> None:
         """Calls process without surpressing the output"""
-        self.logger.debug('Starting %s with params:', params[0])
+        self.logger.debug('Starting "%s" with params:', params[0])
         self.logger.debug([*map(str, params)])
 
         process = subprocess.Popen(params)
         ret_code = process.wait()
 
         if ret_code not in success_codes:
-            raise ProcessingError('Process at %s exited with return code %s' % (
+            raise ProcessingError('Process at "%s" exited with return code %s' % (
                 params[0],
                 ret_code
             ))
 
-    def call_process_output(self,
+    def call_process_output(
+        self,
         params: List[Union[str, Path]],
         output_handler: Optional[Callable[[subprocess.Popen], None]] = None,
         success_codes: Tuple[int] = (0,)
@@ -40,7 +42,7 @@ class Processor:
         Calls process surpressing the output,
         optionally piping it to a provided handler function
         """
-        self.logger.debug('Starting %s with params:', params[0])
+        self.logger.debug('Starting "%s" with params:', params[0])
         self.logger.debug([*map(str, params)])
 
         process = subprocess.Popen(
@@ -57,7 +59,7 @@ class Processor:
         ret_code = process.wait()
 
         if ret_code not in success_codes:
-            raise ProcessingError('Process at %s exited with return code %s' % (
+            raise ProcessingError('Process at "%s" exited with return code %s' % (
                 params[0],
                 ret_code
             ))

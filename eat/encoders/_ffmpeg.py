@@ -1,6 +1,6 @@
 import subprocess
-from typing import Any, Optional, cast, TextIO
 from pathlib import Path
+from typing import Any, List, Optional, TextIO, cast
 
 from rich.progress import Progress
 
@@ -38,6 +38,25 @@ class FFmpegEncoder(BaseEncoder):
             ],
             output_handler=self._rich_handler
         )
+
+    def _resample_params(
+        self,
+        sample_rate: Optional[int] = None,
+        sample_format: Optional[int] = None
+    ) -> List[str]:
+        """Returns soxr resampler params for a given sample rate"""
+        resample_params = [
+            'aresample=resampler=soxr',
+            'precision=28',
+            'cutoff=1',
+            'dither_scale=0'
+        ]
+        if sample_rate:
+            resample_params.append(f'out_sample_rate={sample_rate}')
+        if sample_format:
+            resample_params.append(f'out_sample_fmt=s{sample_format}')
+
+        return ['-af', ':'.join(resample_params)]
 
     def _rich_handler(self, process: subprocess.Popen) -> None:
         """Handles Rich progress bar"""

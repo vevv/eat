@@ -1,7 +1,7 @@
 import re
 import subprocess
-from typing import Any, cast, Optional, TextIO
 from pathlib import Path
+from typing import Any, Optional, TextIO, cast
 
 from rich.progress import Progress
 
@@ -31,12 +31,11 @@ class Encoder(BaseEncoder):
         self._quality = self._clamp_quality_level(bitrate or 127)
 
     def _encode(self) -> None:
-        # sox progress is not easily readable from subprocess
-        # so don't surpress output
         self._processor.call_process_output(
             params=[
                 self._path,
                 '-V', self._quality,
+                '--no-delay',
                 self._input_file,
                 '-o',
                 self._output_file
@@ -76,3 +75,6 @@ class Encoder(BaseEncoder):
                     progress = re.search(r'\[([0-9]+\.[0-9]+)%\]', line)
                     if progress:
                         pb.update(task_id=task, completed=float(progress[1]))
+
+            # Manually update to 100% in case last progress update was outdated
+            pb.update(task_id=task, completed=100)

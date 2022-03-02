@@ -7,6 +7,7 @@ from eat.encoders._dee import DeeEncoder
 class Encoder(DeeEncoder):
     """Dolby TrueHD encoder class"""
     extension: str = '.thd'
+    supported_sample_rates = [48000, 96000]
 
     def _configure(
         self,
@@ -22,11 +23,11 @@ class Encoder(DeeEncoder):
         self._temp_dir = temp_dir
 
         # Configure input paths
-        config['input']['audio']['wav']['storage']['local']['path'] = '"%s"' % temp_dir
+        config['input']['audio']['wav']['storage']['local']['path'] = '"%s"' % input_path.resolve().parent
         config['input']['audio']['wav']['file_name'] = '"%s"' % input_path.name
         # Configure output paths
         config['output']['mlp']['file_name'] = '"%s"' % output_path.name
-        config['output']['mlp']['storage']['local']['path'] = '"%s"' % Path.cwd()
+        config['output']['mlp']['storage']['local']['path'] = '"%s"' % output_path.resolve().parent
 
         # Configure temp file location
         config['misc']['temp_dir']['path'] = '"%s"' % temp_dir

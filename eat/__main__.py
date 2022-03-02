@@ -8,7 +8,7 @@ import rich
 
 from eat.handler import Handler
 
-__version__ = '0.3.1'
+__version__ = '0.4.0'
 
 
 class RichParser(argparse.ArgumentParser):
@@ -34,11 +34,20 @@ def main() -> None:
     )
 
     parser.add_argument(
+        '-o', '--output-dir',
+        default=Path.cwd(),
+        type=Path,
+        dest='output_dir',
+        help='output directory (default: cwd)'
+    )
+
+    parser.add_argument(
         '-f', '--format',
+        nargs='*',
         type=str.lower,
-        default='ddp',
+        default=['ddp'],
         dest='encoder',
-        choices=('dd', 'ddp', 'thd', 'thd+ac3', 'opus', 'flac', 'aac'),
+        choices=('dd', 'ddp', 'thd', 'opus', 'flac', 'aac'),
         help='output codec'
     )
 
@@ -54,6 +63,23 @@ def main() -> None:
         choices=(1, 2, 6, 8),
         dest='channels',
         help='specify down/upmix, support varies by codec (default: none)'
+    )
+
+    parser.add_argument(
+        '--sample-rate',
+        type=int,
+        choices=[44100, 48000, 96000],
+        dest='sample_rate',
+        help='change output sample rate (FLAC only)'
+    )
+
+    parser.add_argument(
+        '--bit-depth',
+        '--bitdepth',
+        type=int,
+        choices=[16, 24],
+        dest='bit_depth',
+        help='change output bit depth (FLAC only)'
     )
 
     parser.add_argument(

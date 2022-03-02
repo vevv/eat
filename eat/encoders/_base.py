@@ -1,7 +1,7 @@
 import logging
 import sys
-from typing import Any, Optional
 from pathlib import Path
+from typing import Any, List, Literal, Optional, Union
 
 import xmltodict
 
@@ -11,12 +11,13 @@ from eat.utils.processor import Processor
 class BaseEncoder:
     extension: str
     binary_name: str
-    supported_inputs: list[str] = ['pcm']
+    supported_inputs: List[str] = ['pcm']
+    supported_sample_rates: Optional[List[int]] = None  # None = all
     _input_file: Path
     _output_file: Path
     _bitrate: str = '0'  # can't parse int to subprocess, use 0 for lossless
     _temp_dir: Path
-    _to_remove: list[Path] = []
+    _to_remove: List[Path] = []
 
     def __init__(self, path: Path) -> None:
         self._path = path
@@ -33,7 +34,8 @@ class BaseEncoder:
         *,
         input_path: Path,
         output_path: Path,
-        bitdepth: int,
+        bitdepth: Optional[int],
+        sample_rate: Optional[int],
         duration: Optional[int],
         bitrate: Optional[int],
         channels: int,

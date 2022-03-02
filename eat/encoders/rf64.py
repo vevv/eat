@@ -17,6 +17,7 @@ class Encoder(FFmpegEncoder):
         output_path: Path,
         duration: Optional[int],
         bitdepth: Optional[int],
+        sample_rate: Optional[int],
         **_: Any
     ) -> None:
         """Configures encoding params"""
@@ -24,3 +25,6 @@ class Encoder(FFmpegEncoder):
         self._output_file = output_path
         self._codec = 'pcm_s%sle' % bitdepth or '16'
         self._duration = duration
+        if sample_rate:
+            self.logger.info('Resampling to %s Hz', sample_rate)
+            self._extra_params.extend(self._resample_params(sample_rate))

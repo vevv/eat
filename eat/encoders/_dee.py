@@ -1,8 +1,8 @@
 import os
 import re
 import subprocess
-from typing import Optional, cast, TextIO
 from pathlib import Path
+from typing import Optional, TextIO, cast
 
 import xmltodict
 from rich.progress import Progress
@@ -66,6 +66,9 @@ class DeeEncoder(BaseEncoder):
                     )
                     if progress:
                         pb.update(task_id=task, completed=float(progress[1]))
+
+            # Manually update to 100% in case last progress update was outdated
+            pb.update(task_id=task, completed=100)
 
     def _get_task_name(self) -> str:
         """Returns task name for Rich progress bar"""

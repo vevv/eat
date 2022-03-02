@@ -4,6 +4,7 @@ from eat.encoders.ddp import Encoder as DDPEncoder
 class Encoder(DDPEncoder):
     """Dolby Digital (AC-3) encoder class"""
     extension: str = '.ac3'
+    supported_sample_rates = [48000]
 
     def _configure(self, *args, **kwargs) -> None:  # type: ignore[no-untyped-def]
         super()._configure(*args, **kwargs)

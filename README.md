@@ -1,6 +1,8 @@
-# Requirements
+# General requirements
 - ffmpeg
 - ffprobe
+
+### Codec-specific requirements
 
 | Codec        | Encoder               |
 |--------------|-----------------------|
@@ -8,7 +10,7 @@
 | E-AC-3 (DD+) | Dolby Encoding Engine |
 | TrueHD       | Dolby Encoding Engine |
 | AAC          | qaac                  |
-| FLAC         | sox                   |
+| FLAC         | ffmpeg                |
 | Opus         | ffmpeg /w libopus     |
 
 # Installation
@@ -20,23 +22,33 @@ pip install .
 `pip install -e .` can be used instead for an editable instance (see: https://stackoverflow.com/a/35064498)
 * run `eat` with no params to generate an example config in ~/.eat/config.toml.example
 
+# Configuration
+Binary paths in config only need to be specified if binary is not in PATH.
+To use with Wine, please ensure `wine-binfmt` is installed, and you're launching eat with the Wine prefix.
+WSL is currently untested, but I don't anticipate any issues with it.
+
 # Usage
 ```
-usage: eat [-h] [-v] [-i [INPUT ...]] [-f {dd,ddp,thd,thd+ac3,opus,flac,aac}] [-b BITRATE]
-           [-m {1,2,6,8}] [--ex] [-y] [-d]
+usage: eat [-h] [-v] [-i [INPUT ...]] [-o OUTPUT_DIR] [-f [{dd,ddp,thd,opus,flac,aac} ...]] [-b BITRATE]
+           [-m {1,2,6,8}] [--sample-rate {44100,48000,96000}] [--bit-depth {16,24}] [-y] [-d]
 
 optional arguments:
   -h, --help            show this help message and exit
   -v, --version         shows version
   -i [INPUT ...], --input [INPUT ...]
                         audio file(s)
-  -f {dd,ddp,thd,thd+ac3,opus,flac,aac}, --format {dd,ddp,thd,thd+ac3,opus,flac,aac}
+  -o OUTPUT_DIR, --output-dir OUTPUT_DIR
+                        output directory (default: cwd)
+  -f [{dd,ddp,thd,opus,flac,aac} ...], --format [{dd,ddp,thd,opus,flac,aac} ...]
                         output codec
   -b BITRATE, -q BITRATE, --bitrate BITRATE
                         output bitrate (quality value for aac) for lossy codecs
   -m {1,2,6,8}, --mix {1,2,6,8}
                         specify down/upmix, support varies by codec (default: none)
-  --ex                  use Dolby Surround EX
+  --sample-rate {44100,48000,96000}
+                        change output sample rate (FLAC only)
+  --bit-depth {16,24}, --bitdepth {16,24}
+                        change output bit depth (FLAC only)
   -y, --allow-overwrite
                         allow file overwrite
   -d, --debug           Print debug statements
@@ -76,20 +88,15 @@ Remixing is handled by the encoder rather than ffmpeg, as AFAIK it doesn't do it
 
 # Examples
 * DD+5.1 1024 kbps: `eat -i audio.flac -f ddp -b 1024`
-* TrueHD + DD5.1 640 kbps "core": `eat -i audio.dts -f thd+ac3`
+* TrueHD + DD5.1 640 kbps "core": `eat -i audio.dts -f thd dd -b 640`
 
 # Notes
-- Only 1.0, 2.0, 5.1, 7.1 are supported, other layouts should be converted to those by user.
+- Files are processed in order; if multiple formats are passed, each file will be encoded to every format before processing the the next one.
+- Support for layouts other than 1.0, 2.0, 5.1, 7.1 depends on the encoder (DEE will only accept those), it's recommended that user converts them beforehand.
 - 7.1 will automatically be downmixed to 5.1 with DEE for DD.
-- thd.log/thd.mll files are cleaned after all encoding jobs are finished.
+- Temp files (including thd.log/thd.mll) are cleaned after each encoding job
 
 # TODO
-- [x] Prevent/add warnings for file overwrites
-- [x] Add support for qaac
-- [ ] Add warnings for incompatible sample rate
-- [x] Add warnings and/or support for odd channel layouts
-- [ ] Add bit depth conversion for FLAC
-- [x] Consider using sox for sample rate/bit depth conversions/flac encoding
 - [ ] Threading support / multiple simultaneous encodes
 - [ ] Test with WSL
 

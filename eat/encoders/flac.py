@@ -1,18 +1,15 @@
 from pathlib import Path
-from typing import Any, List, Optional, overload
+from typing import Any, Optional
 
-from eat.encoders._base import BaseEncoder
+from eat.encoders._ffmpeg import FFmpegEncoder
 
 
-class Encoder(BaseEncoder):
-    """Free Lossless Audio Codec (FLAC) encoder class"""
+class Encoder(FFmpegEncoder):
     extension = '.flac'
-    binary_name: str = 'sox'
-    supported_inputs: List['str'] = ['pcm', 'rf64', 'flac', 'aiff', 'mp3']
-    _params: List[str] = []
-
-    def __init__(self, path: Path):
-        super().__init__(path)
+    _codec_name = 'FLAC'
+    _codec = 'flac'
+    _extra_params = ['-fflags', '+bitexact']
+    _bitrate = '0'  # bitrate irrelevant for a lossless codec
 
     def _configure(
         self,
@@ -20,23 +17,18 @@ class Encoder(BaseEncoder):
         input_path: Path,
         output_path: Path,
         duration: Optional[int],
+        bitdepth: Optional[int],
+        sample_rate: Optional[int],
+        resample_fmt: Optional[int],
         **_: Any
     ) -> None:
+        """Configures encoding params"""
         self._input_file = input_path
         self._output_file = output_path
         self._duration = duration
-
-    def _encode(self) -> None:
-        # sox progress is not easily readable from subprocess
-        # so don't surpress output
-        self._processor.call_process(
-            params=[
-                self._path,
-                '-V0',
-                '--show-progress',
-                self._input_file,
-                '--compression', '8',
-                self._output_file,
-                *self._params
-            ],
-        )
+        if sample_rate or resample_fmt:
+            self.logger.info('Resampling to %s bit, %s Hz', resample_fmt, sample_rate)
+            self._extra_params.extend(self._resample_params(
+                sample_rate=sample_rate,
+                sample_format=32 if resample_fmt == 24 else resample_fmt
+            ))
