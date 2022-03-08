@@ -41,7 +41,7 @@ class DeeEncoder(BaseEncoder):
                 self._path,
                 '--xml', str(file),
                 '--verbose', 'info',
-                '--progress-interval', '100',  # update progress every 100 ms
+                '--progress-interval', '500',  # update progress every 500 ms (minimum allowed)
                 '--diagnostics-interval', "%01d" % 9e9,  # 0/-1 don't work to shut it up
             ],
             output_handler=self._rich_handler

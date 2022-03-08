@@ -26,7 +26,8 @@ pip install .
 Binary paths in config should only need to be specified if binary is not in PATH,
 but they might be necessary if you're using Wine or WSL.
 
-To use with Wine (for DEE/qaac), please ensure `wine-binfmt` is installed, and you're launching eat with the correct Wine prefix.
+To use with Wine (for DEE/qaac), please ensure `wine-binfmt` is installed, the binaries are set as executable,
+and you're launching eat with the correct Wine prefix.
 
 WSL is untested, but I don't anticipate any issues.
 
@@ -104,4 +105,4 @@ Remixing is handled by the encoder rather than ffmpeg, as AFAIK it doesn't do it
 - [ ] Test with WSL
 
 # Credits
-Thanks to pcroland for his [deew](https://github.com/pcroland/deew) project which was the base for this.
+Thanks to pcroland for his [deew](https://github.com/pcroland/deew) project which was the base for this (originally meant as a fork, ended up rewritten from scratch, with only DEE xml config files being reused).

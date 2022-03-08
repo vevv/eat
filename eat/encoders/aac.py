@@ -51,8 +51,8 @@ class Encoder(BaseEncoder):
 
         quality_level = min(levels, key=lambda level: abs(user_level - level))
         if user_level not in levels:
-            self.logger.warning('Quality level %s will be rounded to %s',
-                                user_level, quality_level)
+            self.logger.info('Quality level %s will be rounded to %s',
+                             user_level, quality_level)
 
         return str(quality_level)
 

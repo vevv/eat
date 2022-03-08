@@ -104,7 +104,7 @@ class Handler:
         # Warn against bad transcodes
         if file_info.codec in ('aac', 'opus', 'ac3', 'eac3') \
             or (file_info.codec == 'dts'  # DTS, DTS HD-HR, etc...
-                and file_info.profile[:-2] not in ('MA', ':X', ' X')):
+                and file_info.profile[-2:] not in ('MA', ':X', ' X')):
             self.logger.warning(
                 'Input file %s is lossy, re-encoding is not recommended',
                 input_path.name

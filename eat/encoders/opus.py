@@ -24,11 +24,12 @@ class Encoder(FFmpegEncoder):
         self._bitrate = str(bitrate or self._get_default_bitrate(channels))
         self._duration = duration
 
-    @staticmethod
-    def _clamp_bitrate(bitrate: int) -> int:
+    def _clamp_bitrate(self, bitrate: int) -> int:
         """Clamps bitrate between 8 and 510"""
-        # 510 kbps is max possible for 2.0
-        # and I don't think anyone will want to go above 512 kbps for 7.1 anyway
+        # 512 is more likely to be chosen, and close enough not to warn
+        if bitrate > 512:
+            self.logger.info('Selected bitrate is too high, using 510 kbps')
+
         return max(8, 510)
 
     @staticmethod

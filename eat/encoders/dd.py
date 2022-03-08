@@ -1,10 +1,20 @@
 from eat.encoders.ddp import Encoder as DDPEncoder
 
 
+ALLOWED_BITRATES = [
+    # Mono and stereo only
+    96, 112, 128, 160, 192,
+    # Mono, stereo, 5.1
+    224, 256, 320, 384, 448, 512, 576, 640
+]
+
+
 class Encoder(DDPEncoder):
     """Dolby Digital (AC-3) encoder class"""
     extension: str = '.ac3'
     supported_sample_rates = [48000]
+    _allowed_bitrates = ALLOWED_BITRATES
+    _minimal_bitrates = {6: 224}
 
     def _configure(self, *args, **kwargs) -> None:  # type: ignore[no-untyped-def]
         super()._configure(*args, **kwargs)

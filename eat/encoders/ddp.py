@@ -4,11 +4,22 @@ from typing import Any, Optional
 from eat.encoders._dee import DeeEncoder
 
 
+ALLOWED_BITRATES = [
+    # Standard profile
+    32, 48, 56, 64, 72, 80, 88, 96, 104, 112, 120, 128, 144, 160, 176, 192, 200, 208, 216, 224, 232, 240, 248,
+    256, 272, 288, 304, 320, 336, 352, 368, 384, 400, 448, 512, 576, 640, 704, 768, 832, 896, 960, 1008, 1024,
+    # Blu-ray profile
+    1280, 1536, 1664
+]
+
+
 class Encoder(DeeEncoder):
     """Dolby Digital Plus (E-AC-3) encoder class"""
     extension: str = '.ec3'
     extension_bd: str = '.eb3'
     supported_sample_rates = [48000]
+    _allowed_bitrates = ALLOWED_BITRATES
+    _minimal_bitrates = {6: 192, 8: 384}
 
     def _configure(
         self,
@@ -27,7 +38,11 @@ class Encoder(DeeEncoder):
         self._temp_dir = temp_dir
 
         # Configure encoder
-        bitrate = self._clamp_bitrate(bitrate or self._get_default_bitrate(channels))
+        bitrate = self._clamp_bitrate(
+            bitrate=bitrate or self._get_default_bitrate(channels),
+            channels=channels
+        )
+
         mix = self._get_mix(channels)
         if remix:
             self.logger.warning('Remixing audio to %s', mix)
@@ -60,10 +75,20 @@ class Encoder(DeeEncoder):
         self._config['job_config'] = config
         self._filename = output_path.name
 
-    @staticmethod
-    def _clamp_bitrate(bitrate: int) -> int:
-        """Clamps bitrate to a multiply of 8 between 32 and 1664"""
-        return max(32, min(8 * round(bitrate / 8), 1664))
+    def _clamp_bitrate(self, bitrate: int, channels: int = 0) -> int:
+        """Clamps bitrate to the nearest allowed value"""
+        nearest = min(self._allowed_bitrates, key=lambda abr: abs(abr - bitrate))
+        minimal = self._minimal_bitrates.get(channels, 0)
+        selected = max(minimal, nearest)
+        if nearest < minimal or bitrate < self._allowed_bitrates[0]:
+            self.logger.info(
+                'Selected bitrate is too low for %s channels, using %s kbps',
+                channels, selected
+            )
+        elif selected != bitrate:
+            self.logger.info('Rounding bitrate to %s kbps', selected)
+
+        return selected
 
     @staticmethod
     def _get_default_bitrate(channels: int) -> int:
