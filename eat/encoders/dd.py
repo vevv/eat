@@ -1,6 +1,5 @@
 from eat.encoders.ddp import Encoder as DDPEncoder
 
-
 ALLOWED_BITRATES = [
     # Mono and stereo only
     96, 112, 128, 160, 192,

@@ -3,7 +3,6 @@ from typing import Any, Optional
 
 from eat.encoders._dee import DeeEncoder
 
-
 ALLOWED_BITRATES = [
     # Standard profile
     32, 48, 56, 64, 72, 80, 88, 96, 104, 112, 120, 128, 144, 160, 176, 192, 200, 208, 216, 224, 232, 240, 248,
