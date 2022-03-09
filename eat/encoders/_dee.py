@@ -54,8 +54,7 @@ class DeeEncoder(BaseEncoder):
             task = pb.add_task(self._get_task_name(), total=100)
 
             with cast(TextIO, process.stdout) as stdout:
-                for _ in iter(stdout.readline, ''):
-                    line = stdout.readline()
+                for line in iter(stdout.readline, ''):
                     self.logger.debug(line.split(']', 1)[-1].strip())
                     if 'error' in line.lower():
                         self.logger.error(line.rstrip().split(': ', 1)[1])

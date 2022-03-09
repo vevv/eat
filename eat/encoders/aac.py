@@ -62,8 +62,7 @@ class Encoder(BaseEncoder):
             task = pb.add_task(f'Encoding {self._filename} with qaac', total=100)
 
             with cast(TextIO, process.stderr) as stderr:
-                for _ in iter(stderr.readline, ''):
-                    line = stderr.readline()
+                for line in iter(stderr.readline, ''):
                     self.logger.debug(line.strip())
                     if 'Overall bitrate' in line:
                         pb.update(task_id=task, completed=100)

@@ -70,8 +70,7 @@ class FFmpegEncoder(BaseEncoder):
             )
 
             with cast(TextIO, process.stdout) as stdout:
-                for _ in iter(stdout.readline, ''):
-                    line = stdout.readline()
+                for line in iter(stdout.readline, ''):
                     if '=' not in line:
                         continue
                     key, val = line.split('=')
