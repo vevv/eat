@@ -1,6 +1,7 @@
 import argparse
 import importlib
 import logging
+import platform
 from pathlib import Path
 from shutil import which
 from typing import List, Optional
@@ -165,6 +166,11 @@ class Handler:
         encoder_path = self.config['binaries'].get(
             module.Encoder.binary_name, which(module.Encoder.binary_name)
         )
+        if platform.system() == 'Linux' \
+                and encoder == 'thd' and not encoder_path.endswith('.exe'):
+            self.logger.warning('Linux version of DEE detected, '
+                                'TrueHD encoding will not work')
+
         if not encoder_path:
             self.logger.error('Path for %s not found!', module.Encoder.binary_name)
             raise SystemExit
