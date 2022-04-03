@@ -65,7 +65,7 @@ class FFmpegEncoder(BaseEncoder):
 
         with Progress() as pb:
             task = pb.add_task(
-                f'Converting {self._input_file.name} to {self._codec_name}',
+                f'Converting "{self._input_file.name}" to {self._codec_name}',
                 total=self._duration
             )
 

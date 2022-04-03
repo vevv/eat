@@ -48,7 +48,7 @@ class Handler:
             self.logger.info('Processing "%s"...', input_path)
             for encoder in self.args.encoder:
                 if len(self.args.encoder) > 1:
-                    self.logger.info('Encoding %s to %s...', input_path, encoder)
+                    self.logger.info('Encoding "%s" to %s...', input_path.name, encoder)
                 self._encode_format(input_path, encoder)
                 self._clean_temp_files()
 
@@ -107,7 +107,7 @@ class Handler:
             or (file_info.codec == 'dts'  # DTS, DTS HD-HR, etc...
                 and file_info.profile[-2:] not in ('MA', ':X', ' X')):
             self.logger.warning(
-                'Input file %s is lossy, re-encoding is not recommended',
+                'Input file "%s" is lossy, re-encoding is not recommended',
                 input_path.name
             )
 
