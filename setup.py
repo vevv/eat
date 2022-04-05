@@ -12,7 +12,7 @@ setuptools.setup(
     license=None,
     packages=setuptools.find_packages(),
     package_data={
-        "eat": ["py.typed", "data/*"]
+        "eat": ["py.typed", "data/*", "data/xml/*"]
     },
     entry_points={
         'console_scripts': ['eat=eat.__main__:main'],

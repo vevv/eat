@@ -8,7 +8,7 @@ import rich
 
 from eat.handler import Handler
 
-__version__ = '0.4.1'
+__version__ = '0.4.2'
 
 
 class RichParser(argparse.ArgumentParser):
