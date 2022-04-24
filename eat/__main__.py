@@ -8,7 +8,7 @@ import rich
 
 from eat.handler import Handler
 
-__version__ = '0.4.2'
+__version__ = '0.4.3'
 
 
 class RichParser(argparse.ArgumentParser):
@@ -47,7 +47,7 @@ def main() -> None:
         type=str.lower,
         default=['ddp'],
         dest='encoder',
-        choices=('dd', 'ddp', 'thd', 'opus', 'flac', 'aac'),
+        choices=('rf64', 'dd', 'ddp', 'thd', 'opus', 'flac', 'aac'),
         help='output codec'
     )
 

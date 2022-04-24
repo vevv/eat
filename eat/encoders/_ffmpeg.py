@@ -88,7 +88,7 @@ class FFmpegEncoder(BaseEncoder):
 
     def _simple_handler(self, process: subprocess.Popen) -> None:
         """Handles simple (native ffmpeg) progress output"""
-        self.logger.info(f'Converting {self._input_file.name} to {self._codec_name}')
+        self.logger.info(f'Converting "{self._input_file.name}"" to {self._codec_name}')
         with cast(TextIO, process.stderr) as stderr:
             for line in iter(stderr.readline, ''):
                 if 'error' in line.lower():

@@ -33,7 +33,7 @@ WSL is untested, but I don't anticipate any issues.
 
 # Usage
 ```
-usage: eat [-h] [-v] [-i [INPUT ...]] [-o OUTPUT_DIR] [-f [{dd,ddp,thd,opus,flac,aac} ...]] [-b BITRATE]
+usage: eat [-h] [-v] [-i [INPUT ...]] [-o OUTPUT_DIR] [-f [{rf64,dd,ddp,thd,opus,flac,aac} ...]] [-b BITRATE]
            [-m {1,2,6,8}] [--sample-rate {44100,48000,96000}] [--bit-depth {16,24}] [-y] [-d]
 
 optional arguments:
@@ -43,7 +43,7 @@ optional arguments:
                         audio file(s)
   -o OUTPUT_DIR, --output-dir OUTPUT_DIR
                         output directory (default: cwd)
-  -f [{dd,ddp,thd,opus,flac,aac} ...], --format [{dd,ddp,thd,opus,flac,aac} ...]
+  -f [{rf64,dd,ddp,thd,opus,flac,aac} ...], --format [{rf64,dd,ddp,thd,opus,flac,aac} ...]
                         output codec
   -b BITRATE, -q BITRATE, --bitrate BITRATE
                         output bitrate (quality value for aac) for lossy codecs
@@ -95,14 +95,16 @@ Remixing is handled by the encoder rather than ffmpeg, as AFAIK it doesn't do it
 * TrueHD + DD5.1 640 kbps "core": `eat -i audio.dts -f thd dd -b 640`
 
 # Notes
+- 7.1 is encoded incorrectly by DEE - Ls/Rs are swapped with Lrs/Rls. eat will correct that automatically.
 - Files are processed in order; if multiple formats are passed, each file will be encoded to every format before processing the the next one.
 - Support for layouts other than 1.0, 2.0, 5.1, 7.1 depends on the encoder (DEE will only accept those), it's recommended that user converts them beforehand.
-- 7.1 will automatically be downmixed to 5.1 with DEE for DD.
+- To save time you can generate an intermediate file yourself with -f rf64, and use that to encode further formats. The only exception is encoding 7.1 with DEE-based encoders (DD, DD+, TrueHD).
 - Temp files (including thd.log/thd.mll) are cleaned after each encoding job
 
 # TODO
 - [ ] Threading support / multiple simultaneous encodes
 - [ ] Test with WSL
+- [ ] Bit depth padding detection and removal for lossless codecs
 
 # Credits
 Thanks to pcroland for his [deew](https://github.com/pcroland/deew) project which was the base for this (originally a fork, ended up rewritten from scratch).

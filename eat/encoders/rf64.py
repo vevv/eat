@@ -18,6 +18,7 @@ class Encoder(FFmpegEncoder):
         duration: Optional[int],
         bitdepth: Optional[int],
         sample_rate: Optional[int],
+        filter_complex: Optional[str] = None,
         **_: Any
     ) -> None:
         """Configures encoding params"""
@@ -28,3 +29,7 @@ class Encoder(FFmpegEncoder):
         if sample_rate:
             self.logger.info('Resampling to %s Hz', sample_rate)
             self._extra_params.extend(self._resample_params(sample_rate))
+
+        if filter_complex:
+            self.logger.debug('Running filter_complex: "%s"', filter_complex)
+            self._extra_params.extend(['-filter_complex', filter_complex])

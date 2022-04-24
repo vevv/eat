@@ -41,7 +41,8 @@ class BaseEncoder:
         channels: int,
         temp_dir: Path,
         remix: bool = False,
-        surround_ex: bool = False
+        surround_ex: bool = False,
+        filter_complex: Optional[str] = None,
     ) -> None:
         """Configures encoding params"""
         raise NotImplementedError

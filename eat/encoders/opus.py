@@ -17,12 +17,17 @@ class Encoder(FFmpegEncoder):
         channels: int,
         bitrate: int,
         duration: Optional[int],
+        filter_complex: Optional[str] = None,
         **_: Any
     ) -> None:
         self._input_file = input_path
         self._output_file = output_path
         self._bitrate = str(bitrate or self._get_default_bitrate(channels))
         self._duration = duration
+
+        if filter_complex:
+            self.logger.debug('Running filter_complex: "%s"', filter_complex)
+            self._extra_params.extend(['-filter_complex', filter_complex])
 
     def _clamp_bitrate(self, bitrate: int) -> int:
         """Clamps bitrate between 8 and 510"""

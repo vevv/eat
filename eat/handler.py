@@ -121,21 +121,29 @@ class Handler:
             )
 
         # Convert all formats to rf64 before passing them to encoders
-        if not file_info.codec.startswith('pcm_') \
-                and file_info.codec not in encoder.supported_inputs \
-                and not isinstance(encoder, FFmpegEncoder):
+        if (not file_info.codec.startswith('pcm_')
+                and file_info.codec not in encoder.supported_inputs
+                and not isinstance(encoder, FFmpegEncoder)) \
+                or (file_info.channels == 8 and isinstance(encoder, DeeEncoder)):
             temp_path = get_temp_file(
                 suffix=rf64e.extension,
                 directory=self.config['temp_path']
             )
             self._to_remove.append(temp_path)
 
+            # DEE swaps those channels, so to insure correct output we swap them beforehand
+            filter_complex = None
+            if file_info.channels == 8 and isinstance(encoder, DeeEncoder):
+                self.logger.info('Swapping Ls/Rs with Lrs/Rrs for DEE')
+                filter_complex = 'pan=7.1|c0=c0|c1=c1|c2=c2|c3=c3|c4=c6|c5=c7|c6=c4|c7=c5'
+
             rf64e(
                 input_path=input_path,
                 output_path=temp_path,
                 bitdepth=file_info.bitdepth,
                 duration=file_info.duration,
-                sample_rate=resample_rate
+                sample_rate=resample_rate,
+                filter_complex=filter_complex
             )
             input_path = temp_path
             resample_rate = None  # avoid resampling twice

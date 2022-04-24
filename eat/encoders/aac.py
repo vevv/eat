@@ -59,7 +59,7 @@ class Encoder(BaseEncoder):
     def _rich_handler(self, process: subprocess.Popen) -> None:
         """Handles Rich progress bar"""
         with Progress() as pb:
-            task = pb.add_task(f'Encoding {self._filename} with qaac', total=100)
+            task = pb.add_task(f'Encoding "{self._filename}" with qaac', total=100)
 
             with cast(TextIO, process.stderr) as stderr:
                 for line in iter(stderr.readline, ''):
