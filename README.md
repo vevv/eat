@@ -107,5 +107,6 @@ Remixing is handled by the encoder rather than ffmpeg, as AFAIK it doesn't do it
 - [ ] Bit depth padding detection and removal for lossless codecs
 
 # Credits
-Thanks to pcroland for his [deew](https://github.com/pcroland/deew) project which was the base for this (originally a fork, ended up rewritten from scratch).
-DEE xml config files were used verbatim, and some shared functionality has been added later.
+Thanks to pcroland for his [deew](https://github.com/pcroland/deew) project which was the base and inspiration for this toolkit.
+
+Dolby Encoding Engine XML config files are taken verbatim from deew, and some shared functionality has been added later.
