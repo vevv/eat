@@ -26,10 +26,11 @@ class Encoder(FFmpegEncoder):
         self._output_file = output_path
         self._codec = 'pcm_s%sle' % bitdepth or '16'
         self._duration = duration
-        if sample_rate:
-            self.logger.info('Resampling to %s Hz', sample_rate)
-            self._extra_params.extend(self._resample_params(sample_rate))
-
+        sample_rate = 48000
         if filter_complex:
             self.logger.debug('Running filter_complex: "%s"', filter_complex)
-            self._extra_params.extend(['-filter_complex', filter_complex])
+            self._filter_complex.append(filter_complex)
+
+        if sample_rate:
+            self.logger.info('Resampling to %s Hz', sample_rate)
+            self._filter_complex.append(self._resample_params(sample_rate))

@@ -27,13 +27,13 @@ class Encoder(FFmpegEncoder):
         self._input_file = input_path
         self._output_file = output_path
         self._duration = duration
+        if filter_complex:
+            self.logger.debug('Running filter_complex: "%s"', filter_complex)
+            self._filter_complex.append(filter_complex)
+
         if sample_rate or resample_fmt:
             self.logger.info('Resampling to %s bit, %s Hz', resample_fmt, sample_rate)
-            self._extra_params.extend(self._resample_params(
+            self._filter_complex.append(self._resample_params(
                 sample_rate=sample_rate,
                 sample_format=32 if resample_fmt == 24 else resample_fmt
             ))
-
-        if filter_complex:
-            self.logger.debug('Running filter_complex: "%s"', filter_complex)
-            self._extra_params.extend(['-filter_complex', filter_complex])

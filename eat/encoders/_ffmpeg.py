@@ -14,8 +14,9 @@ class FFmpegEncoder(BaseEncoder):
     supported_inputs: list = ['all']
     _codec_name: str  # display only
     _codec: str  # ffmpeg codec value
-    _extra_params: list = []
+    _extra_params: List[str] = []
     _duration: Optional[int]  # microseconds
+    _filter_complex: List[str] = []
 
     def __init__(self, path: Path) -> None:
         super().__init__(path)
@@ -33,17 +34,24 @@ class FFmpegEncoder(BaseEncoder):
                 '-i', self._input_file,
                 '-c:a', self._codec,
                 *self._extra_params,
+                *self._filter_complex_params(),
                 '-b:a', f'{self._bitrate}k',
                 self._output_file
             ],
             output_handler=self._rich_handler
         )
 
+    def _filter_complex_params(self) -> List[str]:
+        if self._filter_complex:
+            return ['-filter_complex', ','.join(self._filter_complex)]
+
+        return []
+
     def _resample_params(
         self,
         sample_rate: Optional[int] = None,
         sample_format: Optional[int] = None
-    ) -> List[str]:
+    ) -> str:
         """Returns soxr resampler params for a given sample rate"""
         resample_params = [
             'aresample=resampler=soxr',
@@ -56,7 +64,7 @@ class FFmpegEncoder(BaseEncoder):
         if sample_format:
             resample_params.append(f'out_sample_fmt=s{sample_format}')
 
-        return ['-af', ':'.join(resample_params)]
+        return ':'.join(resample_params)
 
     def _rich_handler(self, process: subprocess.Popen) -> None:
         """Handles Rich progress bar"""

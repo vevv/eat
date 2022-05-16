@@ -27,7 +27,7 @@ class Encoder(FFmpegEncoder):
 
         if filter_complex:
             self.logger.debug('Running filter_complex: "%s"', filter_complex)
-            self._extra_params.extend(['-filter_complex', filter_complex])
+            self._filter_complex.append(filter_complex)
 
     def _clamp_bitrate(self, bitrate: int) -> int:
         """Clamps bitrate between 8 and 510"""
