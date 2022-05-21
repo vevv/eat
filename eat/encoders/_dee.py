@@ -71,7 +71,7 @@ class DeeEncoder(BaseEncoder):
 
     def _get_task_name(self) -> str:
         """Returns task name for Rich progress bar"""
-        return f'Encoding "{self._filename}"" with DEE'
+        return f'Encoding "{self._filename}" with DEE'
 
     @staticmethod
     def _export_xml(xml_data: dict) -> str:
