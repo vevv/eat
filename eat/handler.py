@@ -124,7 +124,8 @@ class Handler:
         if (not file_info.codec.startswith('pcm_')
                 and file_info.codec not in encoder.supported_inputs
                 and not isinstance(encoder, FFmpegEncoder)) \
-                or (file_info.channels == 8 and isinstance(encoder, DeeEncoder)):
+                or (file_info.channels == 8 and isinstance(encoder, DeeEncoder)) \
+                or (file_info.codec.startswith('pcm_') and file_info.container != 'wav'):
             temp_path = get_temp_file(
                 suffix=rf64e.extension,
                 directory=self.config['temp_path']

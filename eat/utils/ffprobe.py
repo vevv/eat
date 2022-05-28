@@ -21,6 +21,7 @@ class AudioInfo:
 
         stream = log['streams'][0]
         self.codec = stream['codec_name']
+        self.container = log['format']['format_name']
         self.sample_rate = int(stream['sample_rate'])
         self.bitdepth = int(
             stream.get('bits_per_sample', 0) or stream.get('bits_per_raw_sample', 32)
